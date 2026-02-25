@@ -1,19 +1,10 @@
 from tkinter import filedialog, messagebox
 import os
 
-
-
-
-
 def browse_file(file_var):
     file_path = filedialog.askopenfilename(title="Select a file")
     if file_path:
         file_var.set(file_path)
-
-
-
-
-
 
 def encrypt_file(file_var):
     file_path = file_var.get().strip()
@@ -23,7 +14,7 @@ def encrypt_file(file_var):
     if not os.path.exists(file_path):
         messagebox.showerror("Error", "The selected file does not exist.")
         return
-
+    
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -38,7 +29,6 @@ def encrypt_file(file_var):
     except Exception as e:
         messagebox.showerror("Error", f"Encryption failed:\n{e}")
 
-
 def decrypt_file(file_var):
     file_path = file_var.get().strip()
     if not file_path:
@@ -47,7 +37,6 @@ def decrypt_file(file_var):
     if not os.path.exists(file_path):
         messagebox.showerror("Error", "The selected file does not exist.")
         return
-
     try:
         with open(file_path, 'rb') as f:
             encrypted_bytes = f.read()
@@ -67,7 +56,6 @@ def decrypt_file(file_var):
     except Exception as e:
         messagebox.showerror("Error", f"Decryption failed:\n{e}")
 
-
 def nibble_encrypt(input_string):
     def rechunk(a):
         result = []
@@ -84,7 +72,6 @@ def nibble_encrypt(input_string):
             if bit == '1':
                 decimal += 2 ** i
         return decimal
-
     if len(input_string) % 2 != 0:
         input_string = input_string.zfill(len(input_string) + 1)
 
@@ -92,26 +79,22 @@ def nibble_encrypt(input_string):
     chunks = [cipher[i:i + 4] for i in range(0, len(cipher), 4)]
     encryptedlst = rechunk(chunks)
     encrypted = [chr(binary_to_decimal(b)) for b in encryptedlst]
-
     return encrypted
-
 
 def nibble_decrypt(encrypted_chars):
     """Reverse of nibble_encrypt: undo the nibble interleave to recover plaintext."""
-
     def reverse_rechunk(a):
         """For every pair [AC, BD], extract the original four nibbles [A, B, C, D]."""
         result = []
         for i in range(0, len(a), 2):
             if i + 1 < len(a):
-                ac = a[i]       # 8 bits = A(4) + C(4)
-                bd = a[i + 1]   # 8 bits = B(4) + D(4)
-                result.append(ac[:4])   # A
-                result.append(bd[:4])   # B
-                result.append(ac[4:])   # C
-                result.append(bd[4:])   # D
+                ac = a[i]       
+                bd = a[i + 1]   
+                result.append(ac[:4])   
+                result.append(bd[:4])   
+                result.append(ac[4:])   
+                result.append(bd[4:])   
         return result
-
     def binary_to_decimal(binary_str):
         decimal = 0
         for i, bit in enumerate(reversed(binary_str)):
@@ -119,19 +102,15 @@ def nibble_decrypt(encrypted_chars):
                 decimal += 2 ** i
         return decimal
 
-    # Convert each encrypted char to 8-bit binary
     encrypted_binary = [bin(ord(ch))[2:].zfill(8) for ch in encrypted_chars]
-
-    # Reverse the nibble interleave
+    
     original_nibbles = reverse_rechunk(encrypted_binary)
-
-    # Recombine nibble pairs into 8-bit bytes
+    
     original_binary = []
     for i in range(0, len(original_nibbles), 2):
         if i + 1 < len(original_nibbles):
             original_binary.append(original_nibbles[i] + original_nibbles[i + 1])
 
-    # Convert back to characters
     decrypted = ''.join([chr(binary_to_decimal(b)) for b in original_binary])
 
     return decrypted
